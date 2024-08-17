@@ -4,13 +4,14 @@ public class Main {
         int[] chromosome;
         int fitness;
 
-        public Individual() {
-
+        public Individual(int[] chromosome) {
+            this.chromosome = chromosome;
+            calculateFitness();
         }
 
         public void calculateFitness() {
             fitness = 0;
-            for (int i : this.chromosome) {
+            for (int i : chromosome) {
                 if (i == 1) {
                     fitness++;
                 }
@@ -20,6 +21,7 @@ public class Main {
         public void mutate() {
             int val = (int) (Math.random() * chromosome.length);
             chromosome[val] = (chromosome[val] == 1) ? 0 : 1;
+            calculateFitness();
         }
     }
 
@@ -27,7 +29,9 @@ public class Main {
         private final int populationSize;
         private final Individual[] individuals;
 
-        public Population() {
+        public Population(int populationSize, int[] chromosomeLength) {
+            this.populationSize = populationSize;
+            individuals = new Individual[populationSize];
 
         }
 
@@ -41,8 +45,8 @@ public class Main {
             Individual[] offspring = new Individual[2];
             int crossoverPoint = (int) (Math.random() * length);
 
-            offspring[0] = new Individual();
-            offspring[1] = new Individual();
+            offspring[0] = new Individual(new int[length]);
+            offspring[1] = new Individual(new int[length]);
 
             for (int i = 0; i < length; i++) {
                 if (i < crossoverPoint) {
