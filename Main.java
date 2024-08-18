@@ -6,22 +6,22 @@ public class Main {
 
         public Individual(int[] chromosome) {
             this.chromosome = chromosome;
-            calculateFitness();
+            this.calculateFitness();
         }
 
         public void calculateFitness() {
-            fitness = 0;
-            for (int i : chromosome) {
+            this.fitness = 0;
+            for (int i : this.chromosome) {
                 if (i == 1) {
-                    fitness++;
+                    this.fitness++;
                 }
             }
         }
 
         public void mutate() {
-            int val = (int) (Math.random() * chromosome.length);
-            chromosome[val] = (chromosome[val] == 1) ? 0 : 1;
-            calculateFitness();
+            int val = (int) (Math.random() * this.chromosome.length);
+            this.chromosome[val] = (this.chromosome[val] == 1) ? 0 : 1;
+            this.calculateFitness();
         }
     }
 
