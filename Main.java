@@ -66,6 +66,18 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        int[] chromosome1 = { 1, 0, 1, 0, 1 };
+        int[] chromosome2 = { 0, 1, 0, 1, 0 };
+        int[] chromosome3 = { 1, 1, 0, 0, 1 };
 
+        Individual[] individuals = new Individual[3];
+
+        individuals[0] = new Individual(chromosome1);
+        individuals[1] = new Individual(chromosome2);
+        individuals[2] = new Individual(chromosome3);
+
+        for (Individual individual : individuals) {
+            System.out.println("Fitness: " + individual.fitness);
+        }
     }
 }
