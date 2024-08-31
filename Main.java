@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Main {
 
     static class Individual {
@@ -29,10 +31,17 @@ public class Main {
         private final int populationSize;
         private final Individual[] individuals;
 
-        public Population(int populationSize, int[] chromosomeLength) {
+        public Population(int populationSize, int chromosomeLength) {
             this.populationSize = populationSize;
-            individuals = new Individual[populationSize];
+            this.individuals = new Individual[populationSize];
 
+            for (int i = 0; i < populationSize; i++) {
+                int[] chromosome = new int[chromosomeLength];
+                for (int j = 0; j < chromosomeLength; j++) {
+                    chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
+                }
+                individuals[i] = new Individual(chromosome);
+            }
         }
 
         public Individual selectParent() {
@@ -65,19 +74,21 @@ public class Main {
         }
     }
 
+    @SuppressWarnings("resource")
     public static void main(String[] args) {
-        int[] chromosome1 = { 1, 0, 1, 0, 1 };
-        int[] chromosome2 = { 0, 1, 0, 1, 0 };
-        int[] chromosome3 = { 1, 1, 0, 0, 1 };
+        Scanner input = new Scanner(System.in);
 
-        Individual[] individuals = new Individual[3];
+        System.out.print("Enter the population size: ");
+        int populationSize = input.nextInt();
 
-        individuals[0] = new Individual(chromosome1);
-        individuals[1] = new Individual(chromosome2);
-        individuals[2] = new Individual(chromosome3);
+        System.out.print("Enter the chromosome length: ");
+        int chromosomeLength = input.nextInt();
 
-        for (Individual individual : individuals) {
-            System.out.println("Fitness: " + individual.fitness);
+        Population population = new Population(populationSize, chromosomeLength);
+
+
+        for (int i = 0; i < populationSize; i++) {
+            System.out.println("Fitness of Individual " + (i + 1) + ": " + population.individuals[i].fitness);
         }
     }
 }
