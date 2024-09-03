@@ -6,6 +6,8 @@ public class Main {
         int[] chromosome;
         int fitness;
 
+        static int totalMutations = 0;
+
         public Individual(int[] chromosome) {
             this.chromosome = chromosome;
             this.calculateFitness();
@@ -24,12 +26,16 @@ public class Main {
             int val = (int) (Math.random() * this.chromosome.length);
             this.chromosome[val] = (this.chromosome[val] == 1) ? 0 : 1;
             this.calculateFitness();
+            
+            totalMutations++;
         }
     }
 
     public static class Population {
         private final int populationSize;
         private final Individual[] individuals;
+
+        static int totalIndividuals = 0;
 
         public Population(int populationSize, int chromosomeLength) {
             this.populationSize = populationSize;
@@ -41,6 +47,8 @@ public class Main {
                     chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
                 }
                 individuals[i] = new Individual(chromosome);
+                
+                totalIndividuals++;
             }
         }
 
@@ -86,9 +94,11 @@ public class Main {
 
         Population population = new Population(populationSize, chromosomeLength);
 
-
         for (int i = 0; i < populationSize; i++) {
             System.out.println("Fitness of Individual " + (i + 1) + ": " + population.individuals[i].fitness);
         }
+
+        System.out.println("Total individuals created: " + Population.totalIndividuals);
+        System.out.println("Total mutations performed: " + Individual.totalMutations);
     }
 }
