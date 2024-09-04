@@ -26,8 +26,12 @@ public class Main {
             int val = (int) (Math.random() * this.chromosome.length);
             this.chromosome[val] = (this.chromosome[val] == 1) ? 0 : 1;
             this.calculateFitness();
-            
+
             totalMutations++;
+        }
+
+        public static int getTotalMutations() {
+            return totalMutations;
         }
     }
 
@@ -47,7 +51,7 @@ public class Main {
                     chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
                 }
                 individuals[i] = new Individual(chromosome);
-                
+
                 totalIndividuals++;
             }
         }
@@ -80,6 +84,10 @@ public class Main {
 
             return offspring;
         }
+
+        public static int getTotalIndividuals() {
+            return totalIndividuals;
+        }
     }
 
     @SuppressWarnings("resource")
@@ -98,7 +106,7 @@ public class Main {
             System.out.println("Fitness of Individual " + (i + 1) + ": " + population.individuals[i].fitness);
         }
 
-        System.out.println("Total individuals created: " + Population.totalIndividuals);
-        System.out.println("Total mutations performed: " + Individual.totalMutations);
+        System.out.println("Total individuals created: " + Population.getTotalIndividuals());
+        System.out.println("Total mutations performed: " + Individual.getTotalMutations());
     }
 }
