@@ -3,14 +3,26 @@ import java.util.Scanner;
 public class Main {
 
     static class Individual {
-        int[] chromosome;
-        int fitness;
-
-        static int totalMutations = 0;
+        private int[] chromosome;
+        private int fitness;
+        private static int totalMutations = 0;
 
         public Individual(int[] chromosome) {
             this.chromosome = chromosome;
             this.calculateFitness();
+        }
+
+        public int[] getChromosome() {
+            return this.chromosome;
+        }
+
+        public void setChromosome(int[] chromosome) {
+            this.chromosome = chromosome;
+            this.calculateFitness();
+        }
+
+        public int getFitness() {
+            return this.fitness;
         }
 
         public void calculateFitness() {
@@ -38,8 +50,7 @@ public class Main {
     public static class Population {
         private final int populationSize;
         private final Individual[] individuals;
-
-        static int totalIndividuals = 0;
+        private static int totalIndividuals = 0;
 
         public Population(int populationSize, int chromosomeLength) {
             this.populationSize = populationSize;
@@ -56,13 +67,21 @@ public class Main {
             }
         }
 
+        public Individual[] getIndividuals() {
+            return this.individuals;
+        }
+
+        public static int getTotalIndividuals() {
+            return totalIndividuals;
+        }
+
         public Individual selectParent() {
             int randomIndex = (int) (Math.random() * populationSize);
             return individuals[randomIndex];
         }
 
         public Individual[] crossover(Individual parent1, Individual parent2) {
-            int length = parent1.chromosome.length;
+            int length = parent1.getChromosome().length;
             Individual[] offspring = new Individual[2];
             int crossoverPoint = (int) (Math.random() * length);
 
@@ -71,11 +90,11 @@ public class Main {
 
             for (int i = 0; i < length; i++) {
                 if (i < crossoverPoint) {
-                    offspring[0].chromosome[i] = parent1.chromosome[i];
-                    offspring[1].chromosome[i] = parent2.chromosome[i];
+                    offspring[0].getChromosome()[i] = parent1.getChromosome()[i];
+                    offspring[1].getChromosome()[i] = parent2.getChromosome()[i];
                 } else {
-                    offspring[0].chromosome[i] = parent2.chromosome[i];
-                    offspring[1].chromosome[i] = parent1.chromosome[i];
+                    offspring[0].getChromosome()[i] = parent2.getChromosome()[i];
+                    offspring[1].getChromosome()[i] = parent1.getChromosome()[i];
                 }
             }
 
@@ -84,13 +103,8 @@ public class Main {
 
             return offspring;
         }
-
-        public static int getTotalIndividuals() {
-            return totalIndividuals;
-        }
     }
 
-    @SuppressWarnings("resource")
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
@@ -101,12 +115,75 @@ public class Main {
         int chromosomeLength = input.nextInt();
 
         Population population = new Population(populationSize, chromosomeLength);
+        boolean exit = false;
 
-        for (int i = 0; i < populationSize; i++) {
-            System.out.println("Fitness of Individual " + (i + 1) + ": " + population.individuals[i].fitness);
+        while (!exit) {
+            System.out.println("\nMenu:");
+            System.out.println("1. View all individual fitness levels");
+            System.out.println("2. Mutate an individual");
+            System.out.println("3. Perform crossover between two individuals");
+            System.out.println("4. View total individuals created");
+            System.out.println("5. View total mutations performed");
+            System.out.println("6. Exit");
+
+            System.out.print("Enter your choice: ");
+            int choice = input.nextInt();
+
+            switch (choice) {
+                case 1:
+                    for (int i = 0; i < populationSize; i++) {
+                        System.out.println("Fitness of Individual " + (i + 1) + ": " + population.getIndividuals()[i].getFitness());
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Enter the individual number to mutate (1-" + populationSize + "): ");
+                    int individualNumber = input.nextInt();
+                    if (individualNumber >= 1 && individualNumber <= populationSize) {
+                        population.getIndividuals()[individualNumber - 1].mutate();
+                        System.out.println("Mutation complete. New fitness: " + population.getIndividuals()[individualNumber - 1].getFitness());
+                    } else {
+                        System.out.println("Invalid individual number.");
+                    }
+                    break;
+
+                case 3:
+                    System.out.print("Enter the first individual number (1-" + populationSize + "): ");
+                    int parent1Index = input.nextInt() - 1;
+                    System.out.print("Enter the second individual number (1-" + populationSize + "): ");
+                    int parent2Index = input.nextInt() - 1;
+
+                    if (parent1Index >= 0 && parent1Index < populationSize && parent2Index >= 0 && parent2Index < populationSize) {
+                        Individual parent1 = population.getIndividuals()[parent1Index];
+                        Individual parent2 = population.getIndividuals()[parent2Index];
+                        Individual[] offspring = population.crossover(parent1, parent2);
+
+                        System.out.println("Crossover complete. Offspring fitness levels:");
+                        System.out.println("Offspring 1: " + offspring[0].getFitness());
+                        System.out.println("Offspring 2: " + offspring[1].getFitness());
+                    } else {
+                        System.out.println("Invalid individual numbers.");
+                    }
+                    break;
+
+                case 4:
+                    System.out.println("Total individuals created: " + Population.getTotalIndividuals());
+                    break;
+
+                case 5:
+                    System.out.println("Total mutations performed: " + Individual.getTotalMutations());
+                    break;
+
+                case 6:
+                    exit = true;
+                    System.out.println("Exiting the program.");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
 
-        System.out.println("Total individuals created: " + Population.getTotalIndividuals());
-        System.out.println("Total mutations performed: " + Individual.getTotalMutations());
+        input.close();
     }
 }
