@@ -1,4 +1,4 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -25,7 +25,7 @@ public class Main {
             return this.fitness;
         }
 
-        public void calculateFitness() {
+        private void calculateFitness() {
             this.fitness = 0;
             for (int i : this.chromosome) {
                 if (i == 1) {
@@ -132,7 +132,8 @@ public class Main {
             switch (choice) {
                 case 1:
                     for (int i = 0; i < populationSize; i++) {
-                        System.out.println("Fitness of Individual " + (i + 1) + ": " + population.getIndividuals()[i].getFitness());
+                        System.out.println("Fitness of Individual " + (i + 1) + ": "
+                                + population.getIndividuals()[i].getFitness());
                     }
                     break;
 
@@ -141,7 +142,8 @@ public class Main {
                     int individualNumber = input.nextInt();
                     if (individualNumber >= 1 && individualNumber <= populationSize) {
                         population.getIndividuals()[individualNumber - 1].mutate();
-                        System.out.println("Mutation complete. New fitness: " + population.getIndividuals()[individualNumber - 1].getFitness());
+                        System.out.println("Mutation complete. New fitness: "
+                                + population.getIndividuals()[individualNumber - 1].getFitness());
                     } else {
                         System.out.println("Invalid individual number.");
                     }
@@ -153,7 +155,8 @@ public class Main {
                     System.out.print("Enter the second individual number (1-" + populationSize + "): ");
                     int parent2Index = input.nextInt() - 1;
 
-                    if (parent1Index >= 0 && parent1Index < populationSize && parent2Index >= 0 && parent2Index < populationSize) {
+                    if (parent1Index >= 0 && parent1Index < populationSize && parent2Index >= 0
+                            && parent2Index < populationSize) {
                         Individual parent1 = population.getIndividuals()[parent1Index];
                         Individual parent2 = population.getIndividuals()[parent2Index];
                         Individual[] offspring = population.crossover(parent1, parent2);
