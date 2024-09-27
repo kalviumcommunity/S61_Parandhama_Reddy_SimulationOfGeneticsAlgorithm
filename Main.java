@@ -7,6 +7,14 @@ public class Main {
         private int fitness;
         private static int totalMutations = 0;
 
+        public Individual() {
+            this.chromosome = new int[10];
+            for (int i = 0; i < this.chromosome.length; i++) {
+                this.chromosome[i] = (Math.random() > 0.5) ? 1 : 0;
+            }
+            this.calculateFitness();
+        }
+
         public Individual(int[] chromosome) {
             this.chromosome = chromosome;
             this.calculateFitness();
@@ -38,7 +46,6 @@ public class Main {
             int val = (int) (Math.random() * this.chromosome.length);
             this.chromosome[val] = (this.chromosome[val] == 1) ? 0 : 1;
             this.calculateFitness();
-
             totalMutations++;
         }
 
@@ -62,7 +69,6 @@ public class Main {
                     chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
                 }
                 individuals[i] = new Individual(chromosome);
-
                 totalIndividuals++;
             }
         }
