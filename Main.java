@@ -20,6 +20,7 @@ class Organism {
     }
 }
 
+
 class Individual extends Organism {
     private int[] chromosome;
     private int fitness;
@@ -74,6 +75,7 @@ class Individual extends Organism {
     }
 }
 
+
 class Population {
     protected final int populationSize;
     protected final Individual[] individuals;
@@ -106,6 +108,7 @@ class Population {
         return individuals[randomIndex];
     }
 
+
     public Individual[] crossover(Individual parent1, Individual parent2) {
         int length = parent1.getChromosome().length;
         Individual[] offspring = new Individual[2];
@@ -131,6 +134,7 @@ class Population {
     }
 }
 
+
 class EvolvedPopulation extends Population {
 
     public EvolvedPopulation(int populationSize, int chromosomeLength) {
@@ -143,6 +147,7 @@ class EvolvedPopulation extends Population {
             individual.mutate();
         }
     }
+    
 }
 
 public class Main {
