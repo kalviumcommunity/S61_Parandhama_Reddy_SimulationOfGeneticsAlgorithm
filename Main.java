@@ -20,13 +20,11 @@ abstract class Organism {
         this.type = type;
     }
 
-    public abstract void displayInfo();
-}
 
 class Individual extends Organism {
-    private int[] chromosome;
-    private int fitness;
-    private static int totalMutations = 0;
+    protected int[] chromosome;
+    protected int fitness;
+    protected static int totalMutations = 0;
 
     public Individual() {
         super("Basic Individual");
@@ -76,11 +74,6 @@ class Individual extends Organism {
         return totalMutations;
     }
 
-    @Override
-    public void displayInfo() {
-        System.out.println("This is an individual organism with fitness: " + getFitness());
-    }
-}
 
 class Population {
     protected final int populationSize;
@@ -96,7 +89,11 @@ class Population {
             for (int j = 0; j < chromosomeLength; j++) {
                 chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
             }
-            individuals[i] = new Individual(chromosome);
+            if (Math.random() > 0.5) {
+                individuals[i] = new Individual(chromosome);
+            } else {
+                individuals[i] = new SpecialIndividual(chromosome, Math.random() + 1);
+            }
             totalIndividuals++;
         }
     }
@@ -196,7 +193,7 @@ public class Main {
                         System.out.println("Mutation complete. New fitness: "
                                 + population.getIndividuals()[individualNumber - 1].getFitness());
                     } else {
-                        System.out.println("Invalid individual number.");
+                        System.out.println("Invalid index.");
                     }
                     break;
 
