@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
-class Organism {
+
+abstract class Organism {
     protected String type;
 
     public Organism() {
@@ -18,7 +19,7 @@ class Organism {
     public void setType(String type) {
         this.type = type;
     }
-}
+
 
 class Individual extends Organism {
     protected int[] chromosome;
@@ -72,37 +73,7 @@ class Individual extends Organism {
     public static int getTotalMutations() {
         return totalMutations;
     }
-}
 
-class SpecialIndividual extends Individual {
-    private double specialFactor;
-
-    public SpecialIndividual(int[] chromosome, double specialFactor) {
-        super(chromosome);
-        this.specialFactor = specialFactor;
-        this.calculateFitness();
-    }
-
-    @Override
-    public void calculateFitness() {
-        this.fitness = 0;
-        for (int i : this.chromosome) {
-            if (i == 1) {
-                this.fitness++;
-            }
-        }
-        this.fitness *= specialFactor;
-    }
-
-    public double getSpecialFactor() {
-        return specialFactor;
-    }
-
-    public void setSpecialFactor(double specialFactor) {
-        this.specialFactor = specialFactor;
-        this.calculateFitness();
-    }
-}
 
 class Population {
     protected final int populationSize;
@@ -140,7 +111,6 @@ class Population {
         return individuals[randomIndex];
     }
 
-
     public Individual[] crossover(Individual parent1, Individual parent2) {
         int length = parent1.getChromosome().length;
         Individual[] offspring = new Individual[2];
@@ -166,7 +136,6 @@ class Population {
     }
 }
 
-
 class EvolvedPopulation extends Population {
 
     public EvolvedPopulation(int populationSize, int chromosomeLength) {
@@ -179,7 +148,6 @@ class EvolvedPopulation extends Population {
             individual.mutate();
         }
     }
-    
 }
 
 public class Main {
@@ -203,7 +171,8 @@ public class Main {
             System.out.println("4. Evolve the population");
             System.out.println("5. View total individuals created");
             System.out.println("6. View total mutations performed");
-            System.out.println("7. Exit");
+            System.out.println("7. Display individual info");
+            System.out.println("8. Exit");
 
             System.out.print("Enter your choice: ");
             int choice = input.nextInt();
@@ -262,6 +231,12 @@ public class Main {
                     break;
 
                 case 7:
+                    for (int i = 0; i < populationSize; i++) {
+                        population.getIndividuals()[i].displayInfo();
+                    }
+                    break;
+
+                case 8:
                     exit = true;
                     System.out.println("Exiting the program.");
                     break;
