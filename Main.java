@@ -20,11 +20,10 @@ class Organism {
     }
 }
 
-
 class Individual extends Organism {
-    private int[] chromosome;
-    private int fitness;
-    private static int totalMutations = 0;
+    protected int[] chromosome;
+    protected int fitness;
+    protected static int totalMutations = 0;
 
     public Individual() {
         super("Basic Individual");
@@ -75,6 +74,35 @@ class Individual extends Organism {
     }
 }
 
+class SpecialIndividual extends Individual {
+    private double specialFactor;
+
+    public SpecialIndividual(int[] chromosome, double specialFactor) {
+        super(chromosome);
+        this.specialFactor = specialFactor;
+        this.calculateFitness();
+    }
+
+    @Override
+    public void calculateFitness() {
+        this.fitness = 0;
+        for (int i : this.chromosome) {
+            if (i == 1) {
+                this.fitness++;
+            }
+        }
+        this.fitness *= specialFactor;
+    }
+
+    public double getSpecialFactor() {
+        return specialFactor;
+    }
+
+    public void setSpecialFactor(double specialFactor) {
+        this.specialFactor = specialFactor;
+        this.calculateFitness();
+    }
+}
 
 class Population {
     protected final int populationSize;
@@ -90,7 +118,11 @@ class Population {
             for (int j = 0; j < chromosomeLength; j++) {
                 chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
             }
-            individuals[i] = new Individual(chromosome);
+            if (Math.random() > 0.5) {
+                individuals[i] = new Individual(chromosome);
+            } else {
+                individuals[i] = new SpecialIndividual(chromosome, Math.random() + 1);
+            }
             totalIndividuals++;
         }
     }
@@ -192,7 +224,7 @@ public class Main {
                         System.out.println("Mutation complete. New fitness: "
                                 + population.getIndividuals()[individualNumber - 1].getFitness());
                     } else {
-                        System.out.println("Invalid individual number.");
+                        System.out.println("Invalid index.");
                     }
                     break;
 
