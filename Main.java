@@ -1,6 +1,5 @@
 import java.util.Scanner;
 
-
 abstract class Organism {
     protected String type;
 
