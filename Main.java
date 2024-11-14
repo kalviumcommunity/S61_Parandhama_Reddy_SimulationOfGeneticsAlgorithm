@@ -19,6 +19,9 @@ abstract class Organism {
     public void setType(String type) {
         this.type = type;
     }
+
+    // Abstract method for organisms to perform an action
+    public abstract void performAction();
 }
 
 // Class representing an individual organism
@@ -29,6 +32,11 @@ class Individual extends Organism {
     public Individual(int[] chromosome) {
         super("Individual");
         this.chromosome = chromosome;
+    }
+
+    @Override
+    public void performAction() {
+        System.out.println("Individual is performing an action.");
     }
 
     public int[] getChromosome() {
@@ -45,6 +53,18 @@ class Individual extends Organism {
 
     public void setFitness(int fitness) {
         this.fitness = fitness;
+    }
+}
+
+// New subclass representing an Animal organism
+class Animal extends Organism {
+    public Animal() {
+        super("Animal");
+    }
+
+    @Override
+    public void performAction() {
+        System.out.println("Animal is performing an action.");
     }
 }
 
@@ -118,12 +138,12 @@ class GeneticOperations {
 // Class representing a population of organisms
 class Population {
     protected final int populationSize;
-    protected final Individual[] individuals;
+    protected final Organism[] individuals;
     private final GeneticOperations geneticOperations;
 
     public Population(int populationSize, int chromosomeLength, GeneticOperations geneticOperations) {
         this.populationSize = populationSize;
-        this.individuals = new Individual[populationSize];
+        this.individuals = new Organism[populationSize];
         this.geneticOperations = geneticOperations;
         initializePopulation(chromosomeLength);
     }
@@ -135,11 +155,11 @@ class Population {
                 chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
             }
             individuals[i] = new Individual(chromosome);
-            geneticOperations.applyOperations(individuals[i]); // Apply operations on initialization
+            geneticOperations.applyOperations((Individual) individuals[i]); // Apply operations on initialization
         }
     }
 
-    public Individual[] getIndividuals() {
+    public Organism[] getIndividuals() {
         return this.individuals;
     }
 
@@ -157,8 +177,8 @@ class PopulationEvolution {
     }
 
     public void evolve() {
-        for (Individual individual : population.getIndividuals()) {
-            population.getGeneticOperations().applyOperations(individual);
+        for (Organism organism : population.getIndividuals()) {
+            population.getGeneticOperations().applyOperations((Individual) organism);
         }
     }
 }
@@ -179,29 +199,25 @@ class PopulationUI {
 
         while (!exit) {
             System.out.println("\nMenu:");
-            System.out.println("1. View all individual fitness levels");
-            System.out.println("2. Mutate an individual");
-            System.out.println("3. Perform crossover between two individuals");
-            System.out.println("4. Evolve the population");
-            System.out.println("5. Exit");
+            System.out.println("1. View all organism types");
+            System.out.println("2. Perform action for an organism");
+            System.out.println("3. Evolve the population");
+            System.out.println("4. Exit");
 
             System.out.print("Enter your choice: ");
             int choice = input.nextInt();
 
             switch (choice) {
                 case 1:
-                    viewFitnessLevels();
+                    viewOrganismTypes();
                     break;
                 case 2:
-                    mutateIndividual(input);
+                    performActionForOrganism(input);
                     break;
                 case 3:
-                    performCrossover(input);
-                    break;
-                case 4:
                     evolvePopulation();
                     break;
-                case 5:
+                case 4:
                     exit = true;
                     System.out.println("Exiting the program.");
                     break;
@@ -213,44 +229,21 @@ class PopulationUI {
         input.close();
     }
 
-    private void viewFitnessLevels() {
-        for (int i = 0; i < population.getIndividuals().length; i++) {
-            System.out.println("Fitness of Individual " + (i + 1) + ": " + population.getIndividuals()[i].getFitness());
+    private void viewOrganismTypes() {
+        for (Organism organism : population.getIndividuals()) {
+            System.out.println("Organism type: " + organism.getType());
         }
     }
 
-    private void mutateIndividual(Scanner input) {
-        System.out.print("Enter the individual number to mutate (1-" + population.getIndividuals().length + "): ");
-        int individualNumber = input.nextInt();
-        if (individualNumber >= 1 && individualNumber <= population.getIndividuals().length) {
-            GeneticOperations geneticOperations = population.getGeneticOperations();
-            geneticOperations.applyOperations(population.getIndividuals()[individualNumber - 1]);
-            System.out.println("Mutation complete. New fitness: "
-                    + population.getIndividuals()[individualNumber - 1].getFitness());
+    private void performActionForOrganism(Scanner input) {
+        System.out
+                .print("Enter the organism number to perform action (1-" + population.getIndividuals().length + "): ");
+        int organismNumber = input.nextInt();
+        if (organismNumber >= 1 && organismNumber <= population.getIndividuals().length) {
+            Organism organism = population.getIndividuals()[organismNumber - 1];
+            organism.performAction(); // Liskov Substitution: individual can be substituted with any subclass
         } else {
-            System.out.println("Invalid index.");
-        }
-    }
-
-    private void performCrossover(Scanner input) {
-        System.out.print("Enter the first individual number (1-" + population.getIndividuals().length + "): ");
-        int parent1Index = input.nextInt() - 1;
-        System.out.print("Enter the second individual number (1-" + population.getIndividuals().length + "): ");
-        int parent2Index = input.nextInt() - 1;
-
-        if (parent1Index >= 0 && parent1Index < population.getIndividuals().length &&
-                parent2Index >= 0 && parent2Index < population.getIndividuals().length) {
-            Individual parent1 = population.getIndividuals()[parent1Index];
-            Individual parent2 = population.getIndividuals()[parent2Index];
-            Crossover crossover = new Crossover(parent1, parent2);
-            crossover.perform(parent1); // Modify parent1 as the offspring
-            crossover.perform(parent2); // Modify parent2 as the offspring
-
-            System.out.println("Crossover complete. Offspring fitness levels:");
-            System.out.println("Offspring 1: " + parent1.getFitness());
-            System.out.println("Offspring 2: " + parent2.getFitness());
-        } else {
-            System.out.println("Invalid individual numbers.");
+            System.out.println("Invalid organism index.");
         }
     }
 
