@@ -1,5 +1,6 @@
-import java.util.Scanner;
+import java.util.*;
 
+// Abstract class for all organisms
 abstract class Organism {
     protected String type;
 
@@ -20,6 +21,7 @@ abstract class Organism {
     }
 }
 
+// Class representing an individual organism
 class Individual extends Organism {
     protected int[] chromosome;
     protected int fitness;
@@ -27,7 +29,6 @@ class Individual extends Organism {
     public Individual(int[] chromosome) {
         super("Individual");
         this.chromosome = chromosome;
-        GeneticOperations.calculateFitness(this);
     }
 
     public int[] getChromosome() {
@@ -36,7 +37,6 @@ class Individual extends Organism {
 
     public void setChromosome(int[] chromosome) {
         this.chromosome = chromosome;
-        GeneticOperations.calculateFitness(this);
     }
 
     public int getFitness() {
@@ -48,8 +48,15 @@ class Individual extends Organism {
     }
 }
 
-class GeneticOperations {
-    public static void calculateFitness(Individual individual) {
+// Interface for genetic operations
+interface GeneticOperation {
+    void perform(Individual individual);
+}
+
+// Concrete class for fitness calculation
+class FitnessCalculation implements GeneticOperation {
+    @Override
+    public void perform(Individual individual) {
         int fitness = 0;
         for (int gene : individual.getChromosome()) {
             if (gene == 1)
@@ -57,42 +64,67 @@ class GeneticOperations {
         }
         individual.setFitness(fitness);
     }
+}
 
-    public static void mutate(Individual individual) {
+// Concrete class for mutation
+class Mutation implements GeneticOperation {
+    @Override
+    public void perform(Individual individual) {
         int[] chromosome = individual.getChromosome();
         int mutationPoint = (int) (Math.random() * chromosome.length);
         chromosome[mutationPoint] = chromosome[mutationPoint] == 1 ? 0 : 1;
-        calculateFitness(individual);
-    }
-
-    public static Individual[] crossover(Individual parent1, Individual parent2) {
-        int length = parent1.getChromosome().length;
-        Individual[] offspring = { new Individual(new int[length]), new Individual(new int[length]) };
-        int crossoverPoint = (int) (Math.random() * length);
-
-        for (int i = 0; i < length; i++) {
-            if (i < crossoverPoint) {
-                offspring[0].getChromosome()[i] = parent1.getChromosome()[i];
-                offspring[1].getChromosome()[i] = parent2.getChromosome()[i];
-            } else {
-                offspring[0].getChromosome()[i] = parent2.getChromosome()[i];
-                offspring[1].getChromosome()[i] = parent1.getChromosome()[i];
-            }
-        }
-        calculateFitness(offspring[0]);
-        calculateFitness(offspring[1]);
-
-        return offspring;
     }
 }
 
+// Concrete class for crossover
+class Crossover implements GeneticOperation {
+    private final Individual parent1;
+    private final Individual parent2;
+
+    public Crossover(Individual parent1, Individual parent2) {
+        this.parent1 = parent1;
+        this.parent2 = parent2;
+    }
+
+    @Override
+    public void perform(Individual individual) {
+        int length = parent1.getChromosome().length;
+        int crossoverPoint = (int) (Math.random() * length);
+        for (int i = 0; i < length; i++) {
+            if (i < crossoverPoint) {
+                individual.getChromosome()[i] = parent1.getChromosome()[i];
+            } else {
+                individual.getChromosome()[i] = parent2.getChromosome()[i];
+            }
+        }
+    }
+}
+
+// Class that manages genetic operations
+class GeneticOperations {
+    private final List<GeneticOperation> operations;
+
+    public GeneticOperations(List<GeneticOperation> operations) {
+        this.operations = operations;
+    }
+
+    public void applyOperations(Individual individual) {
+        for (GeneticOperation operation : operations) {
+            operation.perform(individual);
+        }
+    }
+}
+
+// Class representing a population of organisms
 class Population {
     protected final int populationSize;
     protected final Individual[] individuals;
+    private final GeneticOperations geneticOperations;
 
-    public Population(int populationSize, int chromosomeLength) {
+    public Population(int populationSize, int chromosomeLength, GeneticOperations geneticOperations) {
         this.populationSize = populationSize;
         this.individuals = new Individual[populationSize];
+        this.geneticOperations = geneticOperations;
         initializePopulation(chromosomeLength);
     }
 
@@ -103,6 +135,7 @@ class Population {
                 chromosome[j] = (Math.random() > 0.5) ? 1 : 0;
             }
             individuals[i] = new Individual(chromosome);
+            geneticOperations.applyOperations(individuals[i]); // Apply operations on initialization
         }
     }
 
@@ -110,12 +143,12 @@ class Population {
         return this.individuals;
     }
 
-    public Individual selectParent() {
-        int randomIndex = (int) (Math.random() * populationSize);
-        return individuals[randomIndex];
+    public GeneticOperations getGeneticOperations() {
+        return this.geneticOperations;
     }
 }
 
+// Class for evolving the population
 class PopulationEvolution {
     private final Population population;
 
@@ -125,11 +158,12 @@ class PopulationEvolution {
 
     public void evolve() {
         for (Individual individual : population.getIndividuals()) {
-            GeneticOperations.mutate(individual);
+            population.getGeneticOperations().applyOperations(individual);
         }
     }
 }
 
+// Class for the user interface
 class PopulationUI {
     private final PopulationEvolution evolution;
     private final Population population;
@@ -173,6 +207,7 @@ class PopulationUI {
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
+                    break;
             }
         }
         input.close();
@@ -188,7 +223,8 @@ class PopulationUI {
         System.out.print("Enter the individual number to mutate (1-" + population.getIndividuals().length + "): ");
         int individualNumber = input.nextInt();
         if (individualNumber >= 1 && individualNumber <= population.getIndividuals().length) {
-            GeneticOperations.mutate(population.getIndividuals()[individualNumber - 1]);
+            GeneticOperations geneticOperations = population.getGeneticOperations();
+            geneticOperations.applyOperations(population.getIndividuals()[individualNumber - 1]);
             System.out.println("Mutation complete. New fitness: "
                     + population.getIndividuals()[individualNumber - 1].getFitness());
         } else {
@@ -206,11 +242,13 @@ class PopulationUI {
                 parent2Index >= 0 && parent2Index < population.getIndividuals().length) {
             Individual parent1 = population.getIndividuals()[parent1Index];
             Individual parent2 = population.getIndividuals()[parent2Index];
-            Individual[] offspring = GeneticOperations.crossover(parent1, parent2);
+            Crossover crossover = new Crossover(parent1, parent2);
+            crossover.perform(parent1); // Modify parent1 as the offspring
+            crossover.perform(parent2); // Modify parent2 as the offspring
 
             System.out.println("Crossover complete. Offspring fitness levels:");
-            System.out.println("Offspring 1: " + offspring[0].getFitness());
-            System.out.println("Offspring 2: " + offspring[1].getFitness());
+            System.out.println("Offspring 1: " + parent1.getFitness());
+            System.out.println("Offspring 2: " + parent2.getFitness());
         } else {
             System.out.println("Invalid individual numbers.");
         }
@@ -222,6 +260,7 @@ class PopulationUI {
     }
 }
 
+// Main class to run the program
 public class Main {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
@@ -232,7 +271,14 @@ public class Main {
         System.out.print("Enter the chromosome length: ");
         int chromosomeLength = input.nextInt();
 
-        Population population = new Population(populationSize, chromosomeLength);
+        // Add operations to the list
+        List<GeneticOperation> operations = new ArrayList<>();
+        operations.add(new FitnessCalculation());
+        operations.add(new Mutation()); // Add mutation to the operations list
+
+        GeneticOperations geneticOperations = new GeneticOperations(operations);
+
+        Population population = new Population(populationSize, chromosomeLength, geneticOperations);
         PopulationEvolution evolution = new PopulationEvolution(population);
         PopulationUI ui = new PopulationUI(evolution, population);
         ui.displayMenu();
